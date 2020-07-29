@@ -5,28 +5,23 @@ module AmoWebMock
   def mock_api
     authorize_stub(
       Amorail.config.api_endpoint,
-      Amorail.config.usermail,
-      Amorail.config.api_key)
+      Amorail.config.access_token)
 
     account_info_stub(Amorail.config.api_endpoint)
   end
 
-  def mock_custom_api(endpoint, usermail, api_key, properties = 'response_2.json')
+  def mock_custom_api(endpoint, access_token, properties = 'response_2.json')
     authorize_stub(
       endpoint,
-      usermail,
-      api_key
+      access_token
     )
 
     account_info_stub(endpoint, properties)
   end
 
-  def authorize_stub(endpoint, usermail, api_key)
+  def authorize_stub(endpoint, access_token)
     cookie = 'PHPSESSID=58vorte6dd4t7h6mtuig9l0p50; path=/; domain=amocrm.ru'
     stub_request(:post, "#{endpoint}/private/api/auth.php?type=json")
-      .with(
-        body: "{\"USER_LOGIN\":\"#{usermail}\",\"USER_HASH\":\"#{api_key}\"}"
-      )
       .to_return(
         status: 200,
         body: "",

@@ -10,15 +10,14 @@ module Amorail
   class Client
     SUCCESS_STATUS_CODES = [200, 204].freeze
 
-    attr_reader :usermail, :api_key, :api_endpoint
+    attr_reader :access_token, :api_endpoint
 
     def initialize(api_endpoint: Amorail.config.api_endpoint,
-                   api_key: Amorail.config.api_key,
-                   usermail: Amorail.config.usermail)
+                   access_token: Amorail.config.access_token)
       @api_endpoint = api_endpoint
-      @api_key = api_key
-      @usermail = usermail
+      @access_token = access_token
       @connect = Faraday.new(url: api_endpoint) do |faraday|
+        faraday.authorization :Bearer, access_token
         faraday.response :json, content_type: /\bjson$/
         faraday.use :instrumentation
         faraday.adapter Faraday.default_adapter
@@ -35,11 +34,7 @@ module Amorail
 
     def authorize
       self.cookies = nil
-      response = post(
-        Amorail.config.auth_url,
-        'USER_LOGIN' => usermail,
-        'USER_HASH' => api_key
-      )
+      response = post(Amorail.config.auth_url)
       cookie_handler(response)
       response
     end
